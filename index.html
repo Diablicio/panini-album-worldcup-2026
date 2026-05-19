@@ -279,7 +279,6 @@
                 if (db[code].reg > 1) extras += (db[code].reg - 1);
                 if (db[code].parallels) {
                     for (let color in db[code].parallels) {
-                        extras += db[code].parallels[color];
                         if(colorCounts[color] !== undefined) colorCounts[color] += db[code].parallels[color];
                     }
                 }
@@ -483,15 +482,21 @@
         // --- SISTEMA DE BACKUP Y RESTAURACIÓN ---
         function generarBackup() {
             let backupData = JSON.stringify(db);
-            let area = document.getElementById('exportArea');
-            area.style.display = 'block';
-            area.value = backupData;
-            area.select();
-            document.execCommand("copy");
+            const blob = new Blob([backupData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'backup_panini_2026.json';
+            document.body.appendChild(link);
+            link.click();
+            
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
             
             let btn = document.querySelector('.btn-backup'); 
             let originalText = btn.innerText;
-            btn.innerText = "¡Backup Copiado!"; 
+            btn.innerText = "¡Archivo Descargado!"; 
             btn.style.background = "#30D158"; 
             btn.style.color = "#000000";
             
@@ -499,10 +504,9 @@
                 btn.innerText = originalText; 
                 btn.style.background = "#333"; 
                 btn.style.color = "var(--text-main)"; 
-                area.style.display = 'none';
             }, 3000);
             
-            alert("Tu código de Backup ha sido copiado al portapapeles.\n\nAbre la app en tu pantalla de inicio, dale a 'Migrar' y pega este código para restaurar todo.");
+            alert("¡Backup descargado con éxito!\n\nSe ha guardado un archivo 'backup_panini_2026.json' en tu dispositivo (revisa la app 'Archivos' o tu carpeta de Descargas).");
         }
 
         function toggleImport() {
