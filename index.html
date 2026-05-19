@@ -400,8 +400,15 @@
 
         function toggleFiltroUI(tipo) {
             filtroUIActivo = (filtroUIActivo === tipo) ? null : tipo;
+            
+            // Sincronizar el menú desplegable con el filtro seleccionado
+            if (['Azul', 'Naranja', 'Roja', 'Morada', 'Verde'].includes(tipo)) {
+                document.getElementById('color-selector').value = tipo;
+            }
+            
             actualizarEstilosTarjetas();
             aplicarFiltrosVisibilidad();
+            reRenderAll(); // Fuerza a repintar los colores correctos de inmediato
         }
 
         function actualizarEstilosTarjetas() {
