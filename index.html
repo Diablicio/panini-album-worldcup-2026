@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Panini 26">
+    <meta name="theme-color" content="#0b0c10">
+    
+   <link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/354/trophy_1f3c6.png">
+<link rel="icon" type="image/png" href="https://em-content.zobj.net/source/apple/354/trophy_1f3c6.png">
+
+    <title>Panini 2026 Control Premium</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --surface: rgba(28, 28, 30, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #8E8E93;
+            --accent-green: #30D158;
+            --accent-blue: #0A84FF;
+            --accent-orange: #FF9500;
+            --accent-red: #FF453A;
+            --accent-purple: #BF5AF2;
+            --accent-gold: #FFD700;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: radial-gradient(circle at top left, #1a1025, #0b0c10 40%, #08141e);
+            background-attachment: fixed; color: var(--text-main); margin: 0; padding: env(safe-area-inset-top) 15px 60px 15px; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .bg-watermark {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/5/53/2026_FIFA_World_Cup_logo.svg/800px-2026_FIFA_World_Cup_logo.svg.png');
+            background-size: 65%; background-position: center; background-repeat: no-repeat;
+            opacity: 0.06; filter: grayscale(100%) brightness(200%); pointer-events: none; z-index: 0;
+        }
+
+        #album-container { position: relative; z-index: 1; }
+
+        .header { 
+            position: sticky; top: 0; background: rgba(11, 12, 16, 0.92); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: calc(env(safe-area-inset-top) + 10px) 0 15px 0; border-bottom: 1px solid var(--surface-border); margin-bottom: 20px;
+            z-index: 100; margin-top: calc(-1 * env(safe-area-inset-top));
+        }
+
+        h1 { text-align: center; font-size: 20px; margin: 0 0 15px 0; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(90deg, #fff, #a1a1a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+        
+        .search-container { margin-bottom: 15px; }
+        .search-bar { width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--surface-border); border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box; transition: 0.2s; }
+        .search-bar:focus { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(10, 132, 255, 0.2); }
+        .search-bar::placeholder { color: #8E8E93; }
+
+        .ui-controls, .action-controls { display: flex; gap: 10px; margin-bottom: 12px; }
+        
+        .toggle-btn { flex: 1; padding: 12px; background: var(--surface); border: 1px solid var(--surface-border); color: var(--text-main); border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .toggle-btn.active-regular { background: #ffffff; color: #000000; border-color: #ffffff; }
+        .toggle-btn.active-parallel { background: var(--accent-orange); color: #000000; border-color: var(--accent-orange); }
+        
+        .action-btn { flex: 1; padding: 10px; background: var(--surface); border: 1px solid var(--surface-border); color: #8E8E93; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.5px;}
+        .action-btn.active-add { background: rgba(48, 209, 88, 0.15); color: var(--accent-green); border-color: var(--accent-green); }
+        .action-btn.active-sub { background: rgba(255, 69, 58, 0.15); color: var(--accent-red); border-color: var(--accent-red); }
+
+        .select-wrapper { position: relative; width: 100%; margin-bottom: 15px; display: none; }
+        .select-wrapper::after { content: '▼'; font-size: 12px; color: #8E8E93; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+        #color-selector { 
+            width: 100%; padding: 12px 15px; background: var(--surface); color: white; border: 1px solid var(--surface-border); border-radius: 12px; font-size: 14px; font-weight: 600; outline: none;
+            appearance: none; -webkit-appearance: none; cursor: pointer;
+        }
+        
+        .dashboard { position: relative; z-index: 1; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 16px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        
+        #dash-regulares { display: block; }
+        .dash-title { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; }
+        .progress-bg { background: rgba(0,0,0,0.6); border-radius: 8px; height: 8px; width: 100%; margin-bottom: 15px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)); height: 100%; width: 0%; transition: width 0.5s ease; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .stat-card { background: rgba(0,0,0,0.4); border: 1px solid var(--surface-border); border-radius: 12px; padding: 12px 5px; text-align: center; cursor: pointer; transition: all 0.25s ease; user-select: none; }
+        .stat-card:active { transform: scale(0.95); }
+        .stat-card.inactive-filter { opacity: 0.3; filter: grayscale(80%); }
+        .stat-card.active-filter { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .stat-value { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+        .stat-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        .val-green { color: var(--accent-green); }
+        .val-blue { color: var(--accent-blue); }
+        .val-red { color: var(--accent-red); }
+
+        #dash-parallels { display: none; }
+        .dash-subtitle { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 12px; font-weight: 600;}
+        .pills-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .color-pill { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--surface-border); padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+        .color-pill:active { transform: scale(0.95); }
+        .color-pill.inactive-filter { opacity: 0.3; filter: grayscale(80%); }
+        .color-pill.active-filter { background: rgba(255,255,255,0.08); border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.1); transform: scale(1.05); }
+        .pill-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+
+        .data-actions { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;}
+        .data-btn { flex: 1; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; border: none; min-width: 30%;}
+        .btn-export { background: linear-gradient(135deg, var(--accent-blue), #005bb5); color: white; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3); }
+        .btn-export:active { transform: scale(0.96); }
+        .btn-import { background: var(--surface); border: 1px solid var(--surface-border); color: var(--text-main); }
+        .btn-import:active { background: rgba(255,255,255,0.1); }
+        .btn-backup { background: #333; color: var(--text-main); border: 1px solid #555;}
+        
+        .import-box { display: none; margin-bottom: 25px; background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--surface-border); }
+        .import-box textarea { width: 100%; height: 80px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-blue); border-radius: 8px; padding: 10px; box-sizing: border-box; font-family: monospace; font-size: 12px; margin-bottom: 10px;}
+        .btn-process { width: 100%; padding: 12px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        #exportArea { width: 100%; height: 160px; margin-bottom: 25px; background: rgba(0,0,0,0.5); color: var(--accent-green); border: 1px solid var(--surface-border); border-radius: 12px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 12px; display: none; white-space: pre-wrap;}
+
+        .group-container { margin-bottom: 40px; transition: 0.2s; }
+        .group-title { font-size: 20px; border-bottom: 1px solid var(--surface-border); padding-bottom: 10px; margin-bottom: 20px; color: #ffffff; font-weight: 800; letter-spacing: 0.5px; }
+        .team-section { margin-bottom: 25px; background: var(--surface); border: 1px solid var(--surface-border); border-radius: 16px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: 0.2s; }
+        .team-header { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+        
+        .sticker { 
+            background-color: rgba(0,0,0,0.4); border: 1px solid var(--surface-border); border-radius: 8px; padding: 12px 2px 16px 2px; text-align: center; cursor: pointer; user-select: none; font-size: 12px; font-weight: 600; position: relative; color: #6e6e73;
+            touch-action: manipulation; transition: all 0.2s ease; display: block;
+        }
+        .sticker:active { transform: scale(0.92); }
+        .sticker.shiny { color: var(--accent-gold); border-color: rgba(255, 215, 0, 0.3); background-color: rgba(255, 215, 0, 0.05); }
+        .sticker.shiny::before { content: '✨'; position: absolute; top: 2px; left: 3px; font-size: 8px; opacity: 0.9; }
+        
+        .status-pegada { background-color: var(--accent-green) !important; color: #000 !important; border-color: var(--accent-green) !important; }
+        .status-repetida { background-color: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; }
+        .status-Azul { background-color: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; }
+        .status-Naranja { background-color: var(--accent-orange) !important; color: #000 !important; border-color: var(--accent-orange) !important; }
+        .status-Roja { background-color: var(--accent-red) !important; color: #fff !important; border-color: var(--accent-red) !important; }
+        .status-Morada { background-color: var(--accent-purple) !important; color: #fff !important; border-color: var(--accent-purple) !important; }
+        .status-Verde { background-color: var(--accent-green) !important; color: #000 !important; border-color: var(--accent-green) !important; }
+        .status-quitar { border-color: var(--accent-red) !important; opacity: 0.6; } 
+        
+        .highlight-search { box-shadow: 0 0 15px var(--accent-green); border-color: var(--accent-green) !important; color: #fff !important; z-index: 10; transform: scale(1.05); }
+        .badge { position: absolute; top: -6px; right: -6px; background: var(--accent-red); color: white; font-size: 10px; padding: 3px 6px; border-radius: 10px; font-weight: bold; display: none; border: 1px solid #fff; z-index: 2;}
+        .parallel-bars { position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; gap: 2px; height: 3px; justify-content: center; }
+        .p-bar { height: 100%; flex: 1; border-radius: 2px; display: none; }
+        .p-bar.bar-Azul { background-color: var(--accent-blue);}
+        .p-bar.bar-Naranja { background-color: var(--accent-orange);}
+        .p-bar.bar-Roja { background-color: var(--accent-red);}
+        .p-bar.bar-Morada { background-color: var(--accent-purple);}
+        .p-bar.bar-Verde { background-color: var(--accent-green);}
+    </style>
+</head>
+<body>
+
+    <div class="bg-watermark"></div>
+
+    <div class="header">
+        <h1 id="main-title">Panini 2026 Control</h1>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Buscar país o código (Ej: NOR 3)..." oninput="aplicarFiltrosVisibilidad()">
+        </div>
+
+        <div class="ui-controls">
+            <button id="btn-regular" class="toggle-btn active-regular" onclick="setMode('regular')">Regulares</button>
+            <button id="btn-parallel" class="toggle-btn" onclick="setMode('parallel')">Parallels</button>
+        </div>
+
+        <div class="select-wrapper" id="dropdown-container">
+            <select id="color-selector" onchange="reRenderAll()">
+                <option value="Azul">Borde Azul</option>
+                <option value="Naranja">Borde Naranja (Amazon)</option>
+                <option value="Roja">Borde Rojo</option>
+                <option value="Morada">Borde Morado</option>
+                <option value="Verde">Borde Verde</option>
+            </select>
+        </div>
+
+        <div class="action-controls" style="margin-bottom: 0;">
+            <button id="btn-add" class="action-btn active-add" onclick="setOperacion(1)">+ Agregar</button>
+            <button id="btn-sub" class="action-btn" onclick="setOperacion(-1)">- Quitar</button>
+        </div>
+    </div>
+
+    <div class="dashboard" id="main-dashboard">
+        <div id="dash-regulares">
+            <div class="dash-title"><span>Progreso del Álbum</span><span id="stat-percent" style="color: #fff;">0.0%</span></div>
+            <div class="progress-bg"><div class="progress-fill" id="stat-progress"></div></div>
+            <div class="stats-grid">
+                <div class="stat-card" id="filter-pegadas" onclick="toggleFiltroUI('pegadas')">
+                    <div class="stat-value val-green" id="stat-pegadas">0</div>
+                    <div class="stat-label">Pegadas</div>
+                </div>
+                <div class="stat-card" id="filter-faltantes" onclick="toggleFiltroUI('faltantes')">
+                    <div class="stat-value val-red" id="stat-faltantes">0</div>
+                    <div class="stat-label">Faltantes</div>
+                </div>
+                <div class="stat-card" id="filter-repetidas" onclick="toggleFiltroUI('repetidas')">
+                    <div class="stat-value val-blue" id="stat-repetidas">0</div>
+                    <div class="stat-label">Repetidas</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dash-parallels">
+            <div class="dash-subtitle">Toca un color para filtrar tu inventario</div>
+            <div class="pills-container">
+                <div class="color-pill" id="filter-Azul" onclick="toggleFiltroUI('Azul')">
+                    <div class="pill-dot" style="background: var(--accent-blue);"></div><span id="count-Azul">0</span>
+                </div>
+                <div class="color-pill" id="filter-Naranja" onclick="toggleFiltroUI('Naranja')">
+                    <div class="pill-dot" style="background: var(--accent-orange);"></div><span id="count-Naranja">0</span>
+                </div>
+                <div class="color-pill" id="filter-Roja" onclick="toggleFiltroUI('Roja')">
+                    <div class="pill-dot" style="background: var(--accent-red);"></div><span id="count-Roja">0</span>
+                </div>
+                <div class="color-pill" id="filter-Morada" onclick="toggleFiltroUI('Morada')">
+                    <div class="pill-dot" style="background: var(--accent-purple);"></div><span id="count-Morada">0</span>
+                </div>
+                <div class="color-pill" id="filter-Verde" onclick="toggleFiltroUI('Verde')">
+                    <div class="pill-dot" style="background: var(--accent-green);"></div><span id="count-Verde">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="data-section">
+        <div class="data-actions">
+            <button class="data-btn btn-import" onclick="toggleImport()">📥 Importar / Migrar</button>
+            <button class="data-btn btn-export" onclick="exportarListas()">📤 Exp. WhatsApp</button>
+            <button class="data-btn btn-backup" onclick="generarBackup()">🔐 Crear Backup</button>
+        </div>
+        <div id="importBox" class="import-box">
+            <div style="font-size: 12px; margin-bottom: 8px; color: #8E8E93;">Pega aquí los códigos de otra app (Ej: MEX4) para marcarlos como Pegadas.<br><br><strong>O pega tu código de 'Backup' para restaurar toda tu cuenta.</strong></div>
+            <textarea id="importText" placeholder="Pega tu texto aquí..."></textarea>
+            <button class="btn-process" onclick="procesarImportacion()">Procesar / Restaurar</button>
+        </div>
+        <textarea id="exportArea" readonly></textarea>
+    </div>
+
+    <div id="album-container"></div>
+
+    <script>
+        const estructura = [
+            { titulo: "Institucional", equipos: [{ id: "FWC", flag: "🏆", name: "FIFA World Cup" }] },
+            { titulo: "Grupo A", equipos: [{ id: "MEX", flag: "🇲🇽", name: "México" }, { id: "RSA", flag: "🇿🇦", name: "Sudáfrica" }, { id: "KOR", flag: "🇰🇷", name: "Corea del Sur" }, { id: "CZE", flag: "🇨🇿", name: "R. Checa" }] },
+            { titulo: "Grupo B", equipos: [{ id: "CAN", flag: "🇨🇦", name: "Canadá" }, { id: "BIH", flag: "🇧🇦", name: "Bosnia" }, { id: "QAT", flag: "🇶🇦", name: "Qatar" }, { id: "SUI", flag: "🇨🇭", name: "Suiza" }] },
+            { titulo: "Grupo C", equipos: [{ id: "BRA", flag: "🇧🇷", name: "Brasil" }, { id: "MAR", flag: "🇲🇦", name: "Marruecos" }, { id: "HAI", flag: "🇭🇹", name: "Haití" }, { id: "SCO", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", name: "Escocia" }] },
+            { titulo: "Grupo D", equipos: [{ id: "USA", flag: "🇺🇸", name: "Estados Unidos" }, { id: "PAR", flag: "🇵🇾", name: "Paraguay" }, { id: "AUS", flag: "🇦🇺", name: "Australia" }, { id: "TUR", flag: "🇹🇷", name: "Turquía" }] },
+            { titulo: "Grupo E", equipos: [{ id: "GER", flag: "🇩🇪", name: "Alemania" }, { id: "CUW", flag: "🇨🇼", name: "Curazao" }, { id: "CIV", flag: "🇨🇮", name: "Costa de Marfil" }, { id: "ECU", flag: "🇪🇨", name: "Ecuador" }] },
+            { titulo: "Grupo F", equipos: [{ id: "NED", flag: "🇳🇱", name: "Países Bajos" }, { id: "JPN", flag: "🇯🇵", name: "Japón" }, { id: "SWE", flag: "🇸🇪", name: "Suecia" }, { id: "TUN", flag: "🇹🇳", name: "Túnez" }] },
+            { titulo: "Grupo G", equipos: [{ id: "BEL", flag: "🇧🇪", name: "Bélgica" }, { id: "EGY", flag: "🇪🇬", name: "Egipto" }, { id: "IRN", flag: "🇮🇷", name: "Irán" }, { id: "NZL", flag: "🇳🇿", name: "N. Zelanda" }] },
+            { titulo: "Grupo H", equipos: [{ id: "ESP", flag: "🇪🇸", name: "España" }, { id: "CPV", flag: "🇨🇻", name: "Cabo Verde" }, { id: "KSA", flag: "🇸🇦", name: "Arabia Saudita" }, { id: "URU", flag: "🇺🇾", name: "Uruguay" }] },
+            { titulo: "Grupo I", equipos: [{ id: "FRA", flag: "🇫🇷", name: "Francia" }, { id: "SEN", flag: "🇸🇳", name: "Senegal" }, { id: "IRQ", flag: "🇮🇶", name: "Irak" }, { id: "NOR", flag: "🇳🇴", name: "Noruega" }] },
+            { titulo: "Grupo J", equipos: [{ id: "ARG", flag: "🇦🇷", name: "Argentina" }, { id: "ALG", flag: "🇩🇿", name: "Argelia" }, { id: "AUT", flag: "🇦🇹", name: "Austria" }, { id: "JOR", flag: "🇯🇴", name: "Jordania" }] },
+            { titulo: "Grupo K", equipos: [{ id: "POR", flag: "🇵🇹", name: "Portugal" }, { id: "COD", flag: "🇨🇩", name: "RD Congo" }, { id: "UZB", flag: "🇺🇿", name: "Uzbekistán" }, { id: "COL", flag: "🇨🇴", name: "Colombia" }] },
+            { titulo: "Grupo L", equipos: [{ id: "ENG", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", name: "Inglaterra" }, { id: "CRO", flag: "🇭🇷", name: "Croacia" }, { id: "GHA", flag: "🇬🇭", name: "Ghana" }, { id: "PAN", flag: "🇵🇦", name: "Panamá" }] },
+            { titulo: "Coca-Cola Promo", equipos: [{ id: "CC", flag: "🥤", name: "Exclusivas" }] }
+        ];
+
+        const getMax = (equipoId) => equipoId === "FWC" ? 20 : (equipoId === "CC" ? 12 : 20);
+        let totalAlbum = 0;
+        estructura.forEach(g => { g.equipos.forEach(eq => { totalAlbum += getMax(eq.id); }); });
+        
+        function esDificil(code) {
+            if (code.startsWith('FWC') || code.startsWith('CC')) return true;
+            if (/^[A-Z]{3}1$/.test(code)) return true;
+            return false;
+        }
+        
+        let modoActual = 'regular';
+        let operacionMath = 1; 
+        let filtroUIActivo = null; 
+        let db = JSON.parse(localStorage.getItem('panini26_db_v6')) || {};
+
+        function calcularEstadisticas() {
+            let unicas = 0; let extras = 0;
+            let colorCounts = { Azul: 0, Naranja: 0, Roja: 0, Morada: 0, Verde: 0 };
+
+            for (let code in db) {
+                if (db[code].reg > 0) unicas++;
+                if (db[code].reg > 1) extras += (db[code].reg - 1);
+                if (db[code].parallels) {
+                    for (let color in db[code].parallels) {
+                        extras += db[code].parallels[color];
+                        if(colorCounts[color] !== undefined) colorCounts[color] += db[code].parallels[color];
+                    }
+                }
+            }
+            
+            let faltantes = totalAlbum - unicas;
+            let porcentaje = ((unicas / totalAlbum) * 100).toFixed(1);
+
+            document.getElementById('stat-pegadas').innerText = unicas;
+            document.getElementById('stat-faltantes').innerText = faltantes;
+            document.getElementById('stat-repetidas').innerText = extras;
+            document.getElementById('stat-progress').style.width = `${porcentaje}%`;
+            document.getElementById('stat-percent').innerText = `${porcentaje}%`;
+
+            document.getElementById('count-Azul').innerText = colorCounts.Azul;
+            document.getElementById('count-Naranja').innerText = colorCounts.Naranja;
+            document.getElementById('count-Roja').innerText = colorCounts.Roja;
+            document.getElementById('count-Morada').innerText = colorCounts.Morada;
+            document.getElementById('count-Verde').innerText = colorCounts.Verde;
+        }
+
+        function actualizarUI(code) {
+            let el = document.getElementById(`st_${code}`);
+            let badge = document.getElementById(`badge_${code}`);
+            if(!el) return;
+
+            let isHighlighted = el.classList.contains('highlight-search');
+            let isShiny = esDificil(code);
+            
+            el.className = 'sticker';
+            if (isShiny) el.classList.add('shiny');
+            if (isHighlighted) el.classList.add('highlight-search');
+            
+            badge.style.display = 'none';
+
+            if (modoActual === 'regular') {
+                if (db[code] && db[code].reg === 1) el.classList.add('status-pegada');
+                else if (db[code] && db[code].reg > 1) {
+                    el.classList.add('status-repetida');
+                    badge.innerText = `+${db[code].reg - 1}`;
+                    badge.style.display = 'block';
+                }
+                const colores = ["Azul", "Naranja", "Roja", "Morada", "Verde"];
+                colores.forEach(col => {
+                    let bar = document.getElementById(`bar_${col}_${code}`);
+                    if (bar) bar.style.display = (db[code] && db[code].parallels && db[code].parallels[col] > 0) ? 'block' : 'none';
+                });
+            } else {
+                let colorSeleccionado = document.getElementById('color-selector').value;
+                let cantidad = (db[code] && db[code].parallels && db[code].parallels[colorSeleccionado]) ? db[code].parallels[colorSeleccionado] : 0;
+                if (cantidad > 0) {
+                    el.classList.add(`status-${colorSeleccionado}`);
+                    if (cantidad > 1) { badge.innerText = `+${cantidad - 1}`; badge.style.display = 'block'; }
+                }
+                const colores = ["Azul", "Naranja", "Roja", "Morada", "Verde"];
+                colores.forEach(col => {
+                    let bar = document.getElementById(`bar_${col}_${code}`);
+                    if (bar) bar.style.display = 'none';
+                });
+            }
+        }
+
+        function guardarYActualizarTodas() {
+            localStorage.setItem('panini26_db_v6', JSON.stringify(db));
+            reRenderAll();
+        }
+
+        function reRenderAll() {
+            for (let code in db) actualizarUI(code);
+            calcularEstadisticas();
+            aplicarFiltrosVisibilidad(); 
+        }
+
+        function setMode(modo) {
+            modoActual = modo;
+            filtroUIActivo = null; 
+            actualizarEstilosTarjetas();
+            
+            document.getElementById('btn-regular').className = `toggle-btn ${modo === 'regular' ? 'active-regular' : ''}`;
+            document.getElementById('btn-parallel').className = `toggle-btn ${modo === 'parallel' ? 'active-parallel' : ''}`;
+            document.getElementById('dropdown-container').style.display = modo === 'parallel' ? 'block' : 'none';
+            
+            document.getElementById('dash-regulares').style.display = modo === 'regular' ? 'block' : 'none';
+            document.getElementById('dash-parallels').style.display = modo === 'parallel' ? 'block' : 'none';
+            
+            reRenderAll();
+        }
+
+        function setOperacion(val) {
+            operacionMath = val;
+            document.getElementById('btn-add').className = `action-btn ${val === 1 ? 'active-add' : ''}`;
+            document.getElementById('btn-sub').className = `action-btn ${val === -1 ? 'active-sub' : ''}`;
+        }
+
+        function procesarClic(code) {
+            if (!db[code]) db[code] = { reg: 0, parallels: {} };
+
+            let el = document.getElementById(`st_${code}`);
+            if (operacionMath === -1) {
+                el.classList.add('status-quitar');
+                setTimeout(() => el.classList.remove('status-quitar'), 150);
+            }
+
+            if (modoActual === 'regular') {
+                db[code].reg = Math.max(0, db[code].reg + operacionMath);
+            } else {
+                let color = document.getElementById('color-selector').value;
+                if (!db[code].parallels) db[code].parallels = {};
+                if (!db[code].parallels[color]) db[code].parallels[color] = 0;
+                
+                db[code].parallels[color] = Math.max(0, db[code].parallels[color] + operacionMath);
+                if (db[code].parallels[color] === 0) delete db[code].parallels[color];
+            }
+            guardarYActualizarTodas();
+            el.classList.remove('highlight-search');
+        }
+
+        function removerAcentos(str) { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+
+        function toggleFiltroUI(tipo) {
+            filtroUIActivo = (filtroUIActivo === tipo) ? null : tipo;
+            actualizarEstilosTarjetas();
+            aplicarFiltrosVisibilidad();
+        }
+
+        function actualizarEstilosTarjetas() {
+            let cards = ['pegadas', 'faltantes', 'repetidas'];
+            cards.forEach(c => {
+                let el = document.getElementById(`filter-${c}`);
+                if (!el) return;
+                if (!filtroUIActivo) el.className = 'stat-card'; 
+                else if (filtroUIActivo === c) el.className = 'stat-card active-filter'; 
+                else el.className = 'stat-card inactive-filter';
+            });
+
+            let colors = ['Azul', 'Naranja', 'Roja', 'Morada', 'Verde'];
+            colors.forEach(c => {
+                let el = document.getElementById(`filter-${c}`);
+                if (!el) return;
+                if (!filtroUIActivo) el.className = 'color-pill'; 
+                else if (filtroUIActivo === c) el.className = 'color-pill active-filter'; 
+                else el.className = 'color-pill inactive-filter';
+            });
+        }
+
+        function aplicarFiltrosVisibilidad() {
+            let inputBruto = document.getElementById('searchInput').value;
+            let term = removerAcentos(inputBruto.toUpperCase()).replace(/\s+/g, '');
+            
+            let title = document.getElementById('main-title');
+            let dashboard = document.getElementById('main-dashboard');
+            let dataSection = document.getElementById('data-section');
+
+            document.querySelectorAll('.sticker').forEach(s => s.classList.remove('highlight-search'));
+
+            if(term !== '') {
+                title.style.display = 'none'; dashboard.style.display = 'none'; dataSection.style.display = 'none';
+            } else {
+                title.style.display = 'block'; dashboard.style.display = 'block'; dataSection.style.display = 'block';
+            }
+
+            document.querySelectorAll('.group-container').forEach(grupo => {
+                let grupoTieneMatch = false;
+                
+                grupo.querySelectorAll('.team-section').forEach(team => {
+                    let teamHeader = removerAcentos(team.querySelector('.team-header').innerText.toUpperCase()).replace(/\s+/g, '');
+                    let isTeamMatch = term !== '' && teamHeader.includes(term);
+                    let teamVisible = false;
+
+                    team.querySelectorAll('.sticker').forEach(stickerEl => {
+                        let code = stickerEl.id.replace('st_', '');
+                        let datos = db[code] || { reg: 0, parallels: {} };
+                        
+                        let isStickerTextMatch = (term === '') || isTeamMatch || (code === term);
+                        if (term !== '' && code === term) stickerEl.classList.add('highlight-search');
+
+                        let isCardMatch = true;
+                        if (filtroUIActivo === 'pegadas') isCardMatch = datos.reg > 0;
+                        if (filtroUIActivo === 'faltantes') isCardMatch = (!datos.reg || datos.reg === 0);
+                        if (filtroUIActivo === 'repetidas') isCardMatch = datos.reg > 1;
+                        if (['Azul', 'Naranja', 'Roja', 'Morada', 'Verde'].includes(filtroUIActivo)) {
+                            isCardMatch = datos.parallels && datos.parallels[filtroUIActivo] > 0;
+                        }
+
+                        if (isStickerTextMatch && isCardMatch) {
+                            stickerEl.style.display = 'block';
+                            teamVisible = true;
+                        } else {
+                            stickerEl.style.display = 'none';
+                        }
+                    });
+                    
+                    if (teamVisible) { team.style.display = 'block'; grupoTieneMatch = true; } 
+                    else { team.style.display = 'none'; }
+                });
+                
+                grupo.style.display = grupoTieneMatch ? 'block' : 'none';
+            });
+        }
+
+        // --- SISTEMA DE BACKUP Y RESTAURACIÓN ---
+        function generarBackup() {
+            let backupData = JSON.stringify(db);
+            let area = document.getElementById('exportArea');
+            area.style.display = 'block';
+            area.value = backupData;
+            area.select();
+            document.execCommand("copy");
+            
+            let btn = document.querySelector('.btn-backup'); 
+            let originalText = btn.innerText;
+            btn.innerText = "¡Backup Copiado!"; 
+            btn.style.background = "#30D158"; 
+            btn.style.color = "#000000";
+            
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = "#333"; 
+                btn.style.color = "var(--text-main)"; 
+                area.style.display = 'none';
+            }, 3000);
+            
+            alert("Tu código de Backup ha sido copiado al portapapeles.\n\nAbre la app en tu pantalla de inicio, dale a 'Migrar' y pega este código para restaurar todo.");
+        }
+
+        function toggleImport() {
+            let box = document.getElementById('importBox');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+            document.getElementById('exportArea').style.display = 'none';
+        }
+
+        function procesarImportacion() {
+            let texto = document.getElementById('importText').value.trim();
+            
+            if (!texto) return;
+
+            // 1. INTENTO DE RESTAURACIÓN DE BACKUP (JSON)
+            if (texto.startsWith('{') && texto.endsWith('}')) {
+                try {
+                    let backupDB = JSON.parse(texto);
+                    db = backupDB;
+                    guardarYActualizarTodas();
+                    alert("¡Copia de seguridad restaurada con éxito!\n\nTu álbum está exactamente como lo dejaste.");
+                    document.getElementById('importBox').style.display = 'none';
+                    document.getElementById('importText').value = '';
+                    return;
+                } catch (e) {
+                    // Falla silenciosa, pasa al intento 2
+                }
+            }
+
+            // 2. ESCÁNER DE LISTAS (Compatibilidad con Sticker Collector y otras apps)
+            let matches = texto.match(/[A-Z]{2,3}\d{1,2}/g); 
+            if (!matches || matches.length === 0) { 
+                alert("No detectamos códigos válidos para importar. Asegúrate de pegar los códigos (Ej: MEX4) o un código de Backup válido."); 
+                return; 
+            }
+            
+            let nuevas = 0;
+            matches.forEach(code => {
+                if (document.getElementById(`st_${code}`)) {
+                    if (!db[code]) db[code] = { reg: 0, parallels: {} };
+                    if (db[code].reg === 0) { db[code].reg = 1; nuevas++; }
+                }
+            });
+            guardarYActualizarTodas();
+            alert(`¡Importación Exitosa!\n\nDetectamos los códigos y agregamos ${nuevas} estampas a tu álbum.`);
+            document.getElementById('importBox').style.display = 'none'; 
+            document.getElementById('importText').value = '';
+        }
+
+        // --- SISTEMA DE EXPORTACIÓN PARA WHATSAPP ---
+        function exportarListas() {
+            document.getElementById('importBox').style.display = 'none';
+
+            let faltantesStr = "";
+            let repetidasStr = "";
+            let parallelsStr = "";
+
+            estructura.forEach(grupo => {
+                grupo.equipos.forEach(eq => {
+                    let faltantesEq = [];
+                    let repetidasEq = [];
+                    let parallelsEq = [];
+
+                    let max = getMax(eq.id);
+                    for (let i = 1; i <= max; i++) {
+                        let code = `${eq.id}${i}`;
+                        let datos = db[code] || { reg: 0, parallels: {} };
+
+                        if (datos.reg === 0) faltantesEq.push(i);
+                        if (datos.reg > 1) repetidasEq.push(`${i} (x${datos.reg - 1})`);
+
+                        if (datos.parallels) {
+                            for (let color in datos.parallels) {
+                                parallelsEq.push(`${i} [${color}] (x${datos.parallels[color]})`);
+                            }
+                        }
+                    }
+
+                    if (faltantesEq.length > 0) faltantesStr += `${eq.flag} ${eq.id}: ${faltantesEq.join(', ')}\n`;
+                    if (repetidasEq.length > 0) repetidasStr += `${eq.flag} ${eq.id}: ${repetidasEq.join(', ')}\n`;
+                    if (parallelsEq.length > 0) parallelsStr += `${eq.flag} ${eq.id}: ${parallelsEq.join(', ')}\n`;
+                });
+            });
+
+            let texto = `📋 MIS FALTANTES (Busco):\n${faltantesStr || '¡Álbum lleno!\n'}\n🔄 MIS REPETIDAS (Ofrezco):\n${repetidasStr || 'Ninguna\n'}\n🔥 MIS PARALLELS (Ofrezco):\n${parallelsStr || 'Ninguna\n'}`;
+
+            let area = document.getElementById('exportArea');
+            area.style.display = 'block'; 
+            area.value = texto; 
+            area.select(); 
+            document.execCommand("copy");
+            
+            let btn = document.querySelector('.btn-export'); 
+            let originalText = btn.innerText;
+            btn.innerText = "¡Lista Copiada!"; 
+            btn.style.background = "#30D158"; 
+            btn.style.color = "#000000";
+            
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = "linear-gradient(135deg, var(--accent-blue), #005bb5)"; 
+                btn.style.color = "#ffffff"; 
+            }, 3000);
+        }
+
+        const container = document.getElementById('album-container');
+        estructura.forEach(grupo => {
+            let groupDiv = document.createElement('div');
+            groupDiv.className = 'group-container';
+            groupDiv.innerHTML = `<div class="group-title">${grupo.titulo}</div>`;
+            
+            grupo.equipos.forEach(equipo => {
+                let teamSection = document.createElement('div');
+                teamSection.className = 'team-section';
+                teamSection.innerHTML = `<div class="team-header"><span class="team-flag">${equipo.flag}</span><span>${equipo.name} (${equipo.id})</span></div>`;
+
+                let grid = document.createElement('div');
+                grid.className = 'grid';
+
+                for (let i = 1; i <= getMax(equipo.id); i++) {
+                    let code = `${equipo.id}${i}`;
+                    if (!db[code]) db[code] = { reg: 0, parallels: {} };
+
+                    let isShinyClass = esDificil(code) ? ' shiny' : '';
+                    let stickerDiv = document.createElement('div');
+                    stickerDiv.className = `sticker${isShinyClass}`;
+                    stickerDiv.id = `st_${code}`;
+                    stickerDiv.innerHTML = `${code}<span class="badge" id="badge_${code}"></span><div class="parallel-bars"><div class="p-bar bar-Azul" id="bar_Azul_${code}"></div><div class="p-bar bar-Naranja" id="bar_Naranja_${code}"></div><div class="p-bar bar-Roja" id="bar_Roja_${code}"></div><div class="p-bar bar-Morada" id="bar_Morada_${code}"></div><div class="p-bar bar-Verde" id="bar_Verde_${code}"></div></div>`;
+                    
+                    stickerDiv.onclick = () => procesarClic(code);
+                    grid.appendChild(stickerDiv);
+                }
+                teamSection.appendChild(grid);
+                groupDiv.appendChild(teamSection);
+            });
+            container.appendChild(groupDiv);
+        });
+
+        // Setup Inicial
+        setMode('regular'); 
+    </script>
+</body>
+</html>
